@@ -12,6 +12,9 @@ python = "^3.10"
 
 [tool.poetry.group.dev.dependencies]
 shapely = "^1.8.5.post1"
+ruff = "^0.0.93"
+pre-commit = "^2.20.0"
+isort = "^5.10.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -32,3 +35,8 @@ reportPropertyTypeMismatch = "warning"
 reportUninitializedInstanceVariable = "error"
 reportUnnecessaryTypeIgnoreComment = "warning"
 reportUnusedCallResult = "warning"
+
+[tool.isort]
+profile="black"
+py_version=310
+skip_gitignore=true
