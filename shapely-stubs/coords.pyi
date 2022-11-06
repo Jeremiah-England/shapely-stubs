@@ -1,6 +1,7 @@
 from array import array
 from typing import Any, Generator, Literal, TypedDict, overload
 
+from shapely.geometry.base import BaseGeometry
 from shapely.topology import Validating
 
 class _ArrayInterface(TypedDict):
@@ -8,8 +9,6 @@ class _ArrayInterface(TypedDict):
     version: Literal[3]
     typestr: Literal["<f8", ">f8"]
     data: Any
-
-from shapely.geometry.base import BaseGeometry
 
 class CoordinateSequence:
     _cseq = ...
