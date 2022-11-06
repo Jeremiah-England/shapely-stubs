@@ -4,7 +4,7 @@ from typing import Any, Generator, Literal, TypedDict, overload
 from shapely.topology import Validating
 
 class _ArrayInterface(TypedDict):
-    shape: tuple[int, int]
+    shape: tuple[int, Literal[2, 3]]
     version: Literal[3]
     typestr: Literal["<f8", ">f8"]
     data: Any
