@@ -3,6 +3,7 @@ from collections.abc import Sequence
 from typing import Any, Iterable, Literal, TypedDict
 
 from shapely.coords import CoordinateSequence
+from shapely.geometry import Polygon
 from shapely.geometry.base import BaseGeometry
 from shapely.geometry.proxy import CachingGeometryProxy
 
@@ -46,6 +47,16 @@ class Point(BaseGeometry):
     coords: CoordinateSequence = ...
     @property
     def xy(self) -> tuple[array[float], array[float]]: ...
+    def buffer(
+        self,
+        distance: float,
+        resolution: int = ...,
+        quadsegs: int = ...,
+        cap_style: Literal[1, 2, 3] = ...,
+        join_style: Literal[1, 2, 3] = ...,
+        mitre_limit: float = ...,
+        single_sided: bool = ...,
+    ) -> Polygon: ...
 
 class PointAdapter(CachingGeometryProxy, Point):
     _other_owned = ...
