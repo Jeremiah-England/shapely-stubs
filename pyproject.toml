@@ -24,19 +24,8 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pyright]
 # See https://github.com/microsoft/pyright/blob/main/docs/configuration.md
-# extraPaths = ["src"]
-# pythonVersion = "3.10"
-# See table here: https://github.com/microsoft/pyright/blob/main/docs/configuration.md#diagnostic-rule-defaults
-strict = ["src/**/*.pyi"]
-useLibraryCodeForTypes = true
-# These are all the options that pyright has which are not turned on by "strict mode" enabled above.
-reportCallInDefaultInitializer = "warning"
-reportImplicitStringConcatenation = "warning"
-reportMissingSuperCall = "warning"
-reportPropertyTypeMismatch = "warning"
-reportUninitializedInstanceVariable = "error"
-reportUnnecessaryTypeIgnoreComment = "warning"
-reportUnusedCallResult = "warning"
+typeCheckingMode = "strict"
+stubPath = "."
 
 [tool.isort]
 profile="black"
