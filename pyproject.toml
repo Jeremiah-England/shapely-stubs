@@ -11,7 +11,7 @@ packages = [{include = "shapely-stubs"}]
 python = "^3.10"
 
 [tool.poetry.group.dev.dependencies]
-shapely = "^1.8.5.post1"
+shapely = "^2.0b2"
 ruff = "^0.0.93"
 pre-commit = "^2.20.0"
 isort = "^5.10.1"
