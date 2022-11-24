@@ -15,6 +15,7 @@ shapely = "^2.0b2"
 ruff = "^0.0.93"
 pre-commit = "^2.20.0"
 isort = "^5.10.1"
+mypy = "^0.991"
 
 [build-system]
 requires = ["poetry-core"]
