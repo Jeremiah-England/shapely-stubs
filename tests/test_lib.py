@@ -2,13 +2,14 @@
 from types import NotImplementedType
 
 import numpy
+import numpy.typing as npt
 import pytest
-from shapely.errors import ShapelyError
 from shapely.geometry.linestring import LineString
 from shapely.geometry.point import Point
 from shapely.lib import (
     Geometry,
     GEOSException,
+    ShapelyError,
     STRtree,
     area,
     boundary,
@@ -624,6 +625,10 @@ def test_within():
     assert isinstance(assert_type(within, numpy.ufunc), numpy.ufunc)
 
 
+def test_shapely_error():
+    assert issubclass(ShapelyError, Exception)
+
+
 def test_geos_exception():
     assert issubclass(GEOSException, ShapelyError)
 
@@ -713,3 +718,63 @@ class TestSTRtree:
             # Ignore the type here because we are testing known invalid input.
             STRtree([point, linestring], 10)  # type: ignore
         STRtree(numpy.asarray([point, linestring]), 10)
+
+    # TODO: Test query methods with the empty STRtree.
+    def test_dwithin(self, tree: STRtree, point: Geometry):
+        result = tree.dwithin(numpy.asarray([point]), numpy.ndarray(1, float))
+        assert isinstance(assert_type(result, npt.NDArray[numpy.int64]), numpy.ndarray)
+
+        element = result.take(1)  # pyright: ignore[reportUnknownMemberType]
+        assert_type(element, numpy.int64)
+        assert isinstance(
+            element, numpy.int64  # pyright: ignore[reportGeneralTypeIssues]
+        )
+
+    def test_nearest(self, tree: STRtree, point: Geometry):
+        result = tree.nearest(numpy.asarray([point]))
+        assert isinstance(assert_type(result, npt.NDArray[numpy.int64]), numpy.ndarray)
+
+        element = result.take(1)  # pyright: ignore[reportUnknownMemberType]
+        assert_type(element, numpy.int64)
+        assert isinstance(
+            element, numpy.int64  # pyright: ignore[reportGeneralTypeIssues]
+        )
+
+    def test_query(self, tree: STRtree, point: Geometry):
+        query_geometries = numpy.asarray([point])
+        predicate = 0
+        result = tree.query(query_geometries, predicate)
+        assert isinstance(assert_type(result, npt.NDArray[numpy.int64]), numpy.ndarray)
+
+        element = result.take(1)  # pyright: ignore[reportUnknownMemberType]
+        assert_type(element, numpy.int64)
+        assert isinstance(
+            element, numpy.int64  # pyright: ignore[reportGeneralTypeIssues]
+        )
+
+    def test_query_nearest(self, tree: STRtree, point: Geometry):
+        query_geometries = numpy.asarray([point])
+        max_distance = 1
+        exclusive = True
+        all_matches = False
+        indices, distances = tree.query_nearest(
+            query_geometries, max_distance, exclusive, all_matches
+        )
+
+        # Test indices response type
+        assert isinstance(assert_type(indices, npt.NDArray[numpy.int64]), numpy.ndarray)
+        index = indices.take(0)  # pyright: ignore[reportUnknownMemberType]
+        assert_type(index, numpy.int64)
+        assert isinstance(
+            index, numpy.int64  # pyright: ignore[reportGeneralTypeIssues]
+        )
+
+        # Test distances response type
+        assert isinstance(
+            assert_type(distances, npt.NDArray[numpy.float64]), numpy.ndarray
+        )
+        distance = distances.take(0)  # pyright: ignore[reportUnknownMemberType]
+        assert_type(distance, numpy.float64)
+        assert isinstance(
+            distance, numpy.float64  # pyright: ignore[reportGeneralTypeIssues]
+        )
