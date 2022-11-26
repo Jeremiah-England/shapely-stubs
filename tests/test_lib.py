@@ -55,6 +55,7 @@ from shapely.lib import (
     geos_version,
     geos_version_string,
     get_coordinate_dimension,
+    get_coordinates,
     get_dimensions,
     get_exterior_ring,
     get_geometry,
@@ -826,3 +827,48 @@ class TestCountCoordinates:
         geometries = []
         result = count_coordinates(numpy.asarray(geometries, dtype=numpy.object_))
         assert isinstance(assert_type(result, int), int)
+
+
+class TestGetCoordinates:
+    def test_must_be_array(self, linestring: Geometry):
+        include_z = False
+        return_index = False
+        with pytest.raises(TypeError):
+            get_coordinates(linestring, include_z, return_index)  # type: ignore
+
+        with pytest.raises(TypeError):
+            get_coordinates([linestring], include_z, return_index)  # type: ignore
+
+    def test_single_geometry(self, linestring: Geometry):
+        geometries = numpy.asarray(linestring, dtype=numpy.object_)
+        include_z = False
+        return_index = False
+        result = get_coordinates(geometries, include_z, return_index)
+
+        assert_type(result, npt.NDArray[numpy.float64])
+        assert isinstance(result, numpy.ndarray)
+        assert isinstance(result.take(0), numpy.float64)  # pyright: ignore
+
+    def test_multiple_geometries(self, linestring: Geometry, point: Geometry):
+        geometries = numpy.asarray([linestring, point], dtype=numpy.object_)
+        include_z = False
+        return_index = False
+        result = get_coordinates(geometries, include_z, return_index)
+        element = result.take(0)  # pyright: ignore[reportUnknownMemberType]
+
+        assert_type(result, npt.NDArray[numpy.float64])
+        assert isinstance(result, numpy.ndarray)
+        assert_type(element, numpy.float64)
+        assert isinstance(
+            element, numpy.float64  # pyright: ignore[reportGeneralTypeIssues]
+        )
+
+    def test_empty_array(self):
+        geometries = numpy.asarray([], dtype=numpy.object_)
+        include_z = False
+        return_index = False
+        result = get_coordinates(geometries, include_z, return_index)
+        assert isinstance(
+            assert_type(result, npt.NDArray[numpy.float64]), numpy.ndarray
+        )
+        assert str(result.dtype) == "float64"
