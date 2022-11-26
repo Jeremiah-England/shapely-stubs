@@ -26,6 +26,7 @@ from shapely.lib import (
     contains,
     contains_properly,
     convex_hull,
+    count_coordinates,
     coverage_union,
     covered_by,
     covers,
@@ -797,3 +798,31 @@ def test_private_setup_signal_checks():
     # Try with a float.
     with pytest.raises(TypeError):
         result = _setup_signal_checks(10_000.0, main_thread_id)  # type: ignore
+
+
+class TestCountCoordinates:
+    def test_must_be_array(self, linestring: Geometry):
+        with pytest.raises(TypeError):
+            count_coordinates(linestring)  # type: ignore
+
+        with pytest.raises(TypeError):
+            count_coordinates([linestring])  # type: ignore
+
+    def test_single_geometry(self, linestring: Geometry):
+        result = count_coordinates(numpy.asarray(linestring, dtype=numpy.object_))
+        assert isinstance(assert_type(result, int), int)
+
+    def test_multiple_geometries(self, linestring: Geometry, point: Geometry):
+        geometries = [linestring, point]
+        result = count_coordinates(numpy.asarray(geometries, dtype=numpy.object_))
+        assert isinstance(assert_type(result, int), int)
+
+    def test_non_geometry_array(self):
+        with pytest.raises(TypeError):
+            integers = numpy.asarray([1, 2, 3], dtype=numpy.int64)
+            count_coordinates(integers)  # type: ignore
+
+    def test_empty_array(self):
+        geometries = []
+        result = count_coordinates(numpy.asarray(geometries, dtype=numpy.object_))
+        assert isinstance(assert_type(result, int), int)
