@@ -1,4 +1,5 @@
 """Tests for the shapely.lib module."""
+import threading
 from types import NotImplementedType
 
 import numpy
@@ -6,6 +7,9 @@ import numpy.typing as npt
 import pytest
 from shapely.geometry.linestring import LineString
 from shapely.geometry.point import Point
+from shapely.lib import (
+    _setup_signal_checks,  # pyright: ignore (importing private function)
+)
 from shapely.lib import (
     Geometry,
     GEOSException,
@@ -778,3 +782,18 @@ class TestSTRtree:
         assert isinstance(
             distance, numpy.float64  # pyright: ignore[reportGeneralTypeIssues]
         )
+
+
+def test_private_setup_signal_checks():
+    # Test that "None" does not work as the second argument.
+    with pytest.raises(TypeError):
+        _setup_signal_checks(10_000, None)  # type: ignore
+
+    main_thread_id = threading.main_thread().ident
+    assert isinstance(main_thread_id, int)  # Narrow the type of the main thread id.
+    result = _setup_signal_checks(10_000, main_thread_id)
+    assert assert_type(result, None) is None
+
+    # Try with a float.
+    with pytest.raises(TypeError):
+        result = _setup_signal_checks(10_000.0, main_thread_id)  # type: ignore
