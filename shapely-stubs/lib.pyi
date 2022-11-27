@@ -3,9 +3,8 @@ from typing import Any, Literal, overload
 
 import numpy
 import numpy.typing as npt
-import shapely.errors
 
-_C_API: PyCapsule
+# _C_API: PyCapsule  (Generated with stubgen but `PyCapsule` was not imported.)
 area: numpy.ufunc
 boundary: numpy.ufunc
 bounds: numpy.ufunc
