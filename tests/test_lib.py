@@ -831,44 +831,111 @@ class TestCountCoordinates:
 
 class TestGetCoordinates:
     def test_must_be_array(self, linestring: Geometry):
-        include_z = False
-        return_index = False
-        with pytest.raises(TypeError):
-            get_coordinates(linestring, include_z, return_index)  # type: ignore
+        for include_z in [True, False]:
+            for return_index in [True, False]:
+                with pytest.raises(TypeError):
+                    get_coordinates(linestring, include_z, return_index)  # type: ignore
 
-        with pytest.raises(TypeError):
-            get_coordinates([linestring], include_z, return_index)  # type: ignore
+                with pytest.raises(TypeError):
+                    get_coordinates(
+                        [linestring], include_z, return_index  # type: ignore
+                    )
 
-    def test_single_geometry(self, linestring: Geometry):
-        geometries = numpy.asarray(linestring, dtype=numpy.object_)
-        include_z = False
-        return_index = False
-        result = get_coordinates(geometries, include_z, return_index)
+    def test_bool_overload(self, linestring: Geometry):
+        # Bool overloads are tricky. You need one for Literal[True] and Literal[False]
+        # and bool for them to work.
+        for include_z in [True, False]:
+            for return_index in [True, False]:
+                assert_type(return_index, bool)
+                geometries = numpy.asarray(linestring, dtype=numpy.object_)
+                result = get_coordinates(geometries, include_z, return_index)
+                assert_type(
+                    result,
+                    npt.NDArray[numpy.float64]
+                    | tuple[npt.NDArray[numpy.float64], npt.NDArray[numpy.int64]],
+                )
 
-        assert_type(result, npt.NDArray[numpy.float64])
-        assert isinstance(result, numpy.ndarray)
-        assert isinstance(result.take(0), numpy.float64)  # pyright: ignore
+    def test_single_geometry_no_return_index(self, linestring: Geometry):
+        for include_z in [True, False]:
+            return_index = False
+            geometries = numpy.asarray(linestring, dtype=numpy.object_)
+            result = get_coordinates(geometries, include_z, return_index)
 
-    def test_multiple_geometries(self, linestring: Geometry, point: Geometry):
-        geometries = numpy.asarray([linestring, point], dtype=numpy.object_)
-        include_z = False
-        return_index = False
-        result = get_coordinates(geometries, include_z, return_index)
-        element = result.take(0)  # pyright: ignore[reportUnknownMemberType]
+            assert_type(result, npt.NDArray[numpy.float64])
+            assert isinstance(result, numpy.ndarray)
+            assert isinstance(result.take(0), numpy.float64)  # pyright: ignore
 
-        assert_type(result, npt.NDArray[numpy.float64])
-        assert isinstance(result, numpy.ndarray)
-        assert_type(element, numpy.float64)
-        assert isinstance(
-            element, numpy.float64  # pyright: ignore[reportGeneralTypeIssues]
-        )
+    def test_single_geometry_return_index(self, linestring: Geometry):
+        for include_z in [True, False]:
+            return_index = True
+            geometries = numpy.asarray(linestring, dtype=numpy.object_)
+            coords, indices = get_coordinates(geometries, include_z, return_index)
+            assert_type(coords, npt.NDArray[numpy.float64])
+            assert isinstance(coords, numpy.ndarray)
+            assert str(coords.dtype) == "float64"
+            assert isinstance(coords.take(0), numpy.float64)  # pyright: ignore
 
-    def test_empty_array(self):
-        geometries = numpy.asarray([], dtype=numpy.object_)
-        include_z = False
-        return_index = False
-        result = get_coordinates(geometries, include_z, return_index)
-        assert isinstance(
-            assert_type(result, npt.NDArray[numpy.float64]), numpy.ndarray
-        )
-        assert str(result.dtype) == "float64"
+            assert_type(indices, npt.NDArray[numpy.int64])
+            assert isinstance(indices, numpy.ndarray)
+            assert str(indices.dtype) == "int64"
+            assert isinstance(indices.take(0), numpy.int64)  # pyright: ignore
+
+    # TODO: The 'multiple geometries' tests are almost entirely duplicated code of the
+    # single case. Look into conslidating a little.
+    def test_multiple_geometries_no_return_index(
+        self, linestring: Geometry, point: Geometry
+    ):
+        for include_z in [True, False]:
+            return_index = False
+            geometries = numpy.asarray([linestring, point], dtype=numpy.object_)
+            result = get_coordinates(geometries, include_z, return_index)
+            element = result.take(0)  # pyright: ignore[reportUnknownMemberType]
+
+            assert_type(result, npt.NDArray[numpy.float64])
+            assert isinstance(result, numpy.ndarray)
+            assert_type(element, numpy.float64)
+            assert isinstance(
+                element, numpy.float64  # pyright: ignore[reportGeneralTypeIssues]
+            )
+
+    def test_multiple_geometries_return_index(
+        self, linestring: Geometry, point: Geometry
+    ):
+        for include_z in [True, False]:
+            return_index = True
+            geometries = numpy.asarray([linestring, point], dtype=numpy.object_)
+            coords, indices = get_coordinates(geometries, include_z, return_index)
+
+            assert_type(coords, npt.NDArray[numpy.float64])
+            assert isinstance(coords, numpy.ndarray)
+            assert str(coords.dtype) == "float64"
+            assert isinstance(coords.take(0), numpy.float64)  # pyright: ignore
+
+            assert_type(indices, npt.NDArray[numpy.int64])
+            assert isinstance(indices, numpy.ndarray)
+            assert str(indices.dtype) == "int64"
+            assert isinstance(indices.take(0), numpy.int64)  # pyright: ignore
+
+    def test_empty_array_no_return_index(self):
+        for include_z in [True, False]:
+            return_index = False
+            geometries = numpy.asarray([], dtype=numpy.object_)
+            result = get_coordinates(geometries, include_z, return_index)
+            assert isinstance(
+                assert_type(result, npt.NDArray[numpy.float64]), numpy.ndarray
+            )
+            assert str(result.dtype) == "float64"
+
+    def test_empty_array_return_index(self):
+        for include_z in [True, False]:
+            return_index = True
+            geometries = numpy.asarray([], dtype=numpy.object_)
+            coords, indices = get_coordinates(geometries, include_z, return_index)
+
+            assert_type(coords, npt.NDArray[numpy.float64])
+            assert isinstance(coords, numpy.ndarray)
+            assert str(coords.dtype) == "float64"
+
+            assert_type(indices, npt.NDArray[numpy.int64])
+            assert isinstance(indices, numpy.ndarray)
+            assert str(indices.dtype) == "int64"

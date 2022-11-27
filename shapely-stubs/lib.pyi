@@ -1,5 +1,5 @@
 from types import NotImplementedType
-from typing import Any
+from typing import Any, Literal, overload
 
 import numpy
 import numpy.typing as npt
@@ -165,7 +165,29 @@ class STRtree:
 
 def _setup_signal_checks(interval: int, thread_id: int, /) -> None: ...
 def count_coordinates(geometries: npt.NDArray[numpy.object_], /) -> int: ...
+@overload
+def get_coordinates(
+    geometries: npt.NDArray[numpy.object_],
+    include_z: bool,
+    return_index: Literal[True],
+    /,
+) -> tuple[npt.NDArray[numpy.float64], npt.NDArray[numpy.int64]]: ...
+@overload
+def get_coordinates(
+    geometries: npt.NDArray[numpy.object_],
+    include_z: bool,
+    return_index: Literal[False],
+    /,
+) -> npt.NDArray[numpy.float64]: ...
+@overload
 def get_coordinates(
     geometries: npt.NDArray[numpy.object_], include_z: bool, return_index: bool, /
-) -> npt.NDArray[numpy.float64]: ...
+) -> npt.NDArray[numpy.float64] | tuple[
+    npt.NDArray[numpy.float64], npt.NDArray[numpy.int64]
+]: ...
+def get_coordinates(
+    geometries: npt.NDArray[numpy.object_], include_z: bool, return_index: bool, /
+) -> npt.NDArray[numpy.float64] | tuple[
+    npt.NDArray[numpy.float64], npt.NDArray[numpy.int64]
+]: ...
 def set_coordinates(*args, **kwargs) -> Any: ...
