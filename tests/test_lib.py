@@ -117,6 +117,7 @@ from shapely.lib import (
     remove_repeated_points,
     reverse,
     segmentize,
+    set_coordinates,
     set_precision,
     set_srid,
     shared_paths,
@@ -939,3 +940,30 @@ class TestGetCoordinates:
             assert_type(indices, npt.NDArray[numpy.int64])
             assert isinstance(indices, numpy.ndarray)
             assert str(indices.dtype) == "int64"
+
+
+class TestSetCoordinates:
+    def test_single_geometry(self, point: Geometry):
+        geometries = numpy.asarray(point, dtype=numpy.object_)
+        coordinates = numpy.array([[1, 1]], dtype=numpy.float64)
+        result = set_coordinates(geometries, coordinates)
+        assert_type(result, npt.NDArray[numpy.object_])
+        assert isinstance(result, numpy.ndarray)
+        element = result.take(0)  # pyright: ignore[reportUnknownMemberType]
+        assert isinstance(element, Geometry)
+        assert id(geometries) == id(result)
+
+    def test_empty_argumnets(self):
+        geometries = numpy.asarray([], dtype=numpy.object_)
+        coordinates = numpy.array([[]], dtype=numpy.float64)
+        result = set_coordinates(geometries, coordinates)
+        assert_type(result, npt.NDArray[numpy.object_])
+        assert isinstance(result, numpy.ndarray)
+        assert str(result.dtype) == "object"
+        assert id(geometries) == id(result)
+
+    def test_non_float64(self, point: Geometry):
+        geometries = numpy.asarray(point, dtype=numpy.object_)
+        coordinates = numpy.array([[1, 1]], dtype=numpy.float32)
+        with pytest.raises(TypeError):
+            set_coordinates(geometries, coordinates)  # type: ignore

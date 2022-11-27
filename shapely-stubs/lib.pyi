@@ -190,4 +190,8 @@ def get_coordinates(
 ) -> npt.NDArray[numpy.float64] | tuple[
     npt.NDArray[numpy.float64], npt.NDArray[numpy.int64]
 ]: ...
-def set_coordinates(*args, **kwargs) -> Any: ...
+def set_coordinates(
+    geometries: npt.NDArray[numpy.object_], coordinates: npt.NDArray[numpy.float64], /
+) -> npt.NDArray[numpy.object_]:
+    """Set the coordinates for an array of geometries inplace, returning the original array."""
+    ...
