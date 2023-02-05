@@ -6,7 +6,7 @@ import numpy.typing as npt
 from shapely.lib import Geometry
 
 # A reasonable placeholder till I figure out the exact type of this thing!
-_GeometryArrayLike: TypeAlias = Sequence[Geometry]
+_GeometryArrayLike: TypeAlias = Sequence[Geometry] | npt.NDArray[np.object_]
 _GeometryTypeVar = TypeVar("_GeometryTypeVar", bound=Geometry)
 _TransformFunction: TypeAlias = Callable[
     [npt.NDArray[np.float64]], npt.NDArray[np.float64]
@@ -23,18 +23,18 @@ def transform(
     geometry: _GeometryArrayLike,
     transformation: _TransformFunction,
     include_z: bool = ...,
-) -> _GeometryArrayLike: ...
+) -> npt.NDArray[np.object_]: ...
 @overload
 def transform(
     geometry: Geometry | _GeometryArrayLike,
     transformation: _TransformFunction,
     include_z: bool = ...,
-) -> Geometry | _GeometryArrayLike: ...
+) -> Geometry | npt.NDArray[np.object_]: ...
 def transform(
     geometry: Geometry | _GeometryArrayLike,
     transformation: _TransformFunction,
     include_z: bool = ...,
-) -> Geometry | _GeometryArrayLike: ...
+) -> Geometry | npt.NDArray[np.object_]: ...
 def count_coordinates(geometry): ...
 def get_coordinates(geometry, include_z: bool = ..., return_index: bool = ...): ...
 def set_coordinates(geometry, coordinates): ...

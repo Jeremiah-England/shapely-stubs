@@ -26,6 +26,8 @@ build-backend = "poetry.core.masonry.api"
 # See https://github.com/microsoft/pyright/blob/main/docs/configuration.md
 typeCheckingMode = "strict"
 stubPath = "."
+# So we catch lines in `with pytest.raises` blocks that do not raise a type hint error:
+reportUnnecessaryTypeIgnoreComment = "error"
 
 [tool.isort]
 profile="black"

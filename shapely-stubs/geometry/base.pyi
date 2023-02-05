@@ -10,6 +10,7 @@ from typing import (
     overload,
 )
 
+import shapely.lib
 from shapely.geometry import (
     GeometryCollection,
     LinearRing,
@@ -90,7 +91,7 @@ class JOIN_STYLE:
 
 EMPTY: int = ...
 
-class BaseGeometry:
+class BaseGeometry(shapely.lib.Geometry):
     __geom__: int = ...
     __p__: Optional[BaseGeometry] = ...
     _ctypes_data = ...
